@@ -1,0 +1,46 @@
+;допустим у нас есть 2 платы в проекте и под каждую из них хотим файлы в своей папке 
+;MyProject/
+;├─ src
+;   ├─ plata1/
+;      ├─ main_plata1.cpp
+;   ├─ plata2/
+;      ├─ main_plata2.cpp
+;└─ platformio.ini
+
+
+[platformio]
+src_dir = src
+default_envs = master_v01
+
+[env]
+platform = espressif32
+monitor_speed = 115200
+board_build.filesystem = littlefs
+board_build.f_cpu = 240000000L
+framework = arduino
+
+[env:pervaya_plata]
+; здесь надо свою плату выбрать
+board = esp32doit-devkit-v1 ; обычная esp32
+;board = esp32-c3-devkitc-02 ;это esp32-C3
+;board = lolin_s2_mini ;это esp32-S2
+;board =esp32cam ; ESP32 с камерой
+;board =  wt32-eth01 ;это esp32 c эзернетом
+lib_deps = 
+	GyverLibs/Settings
+	GyverLibs/WiFiConnector
+	Gyverlibs/GyverNTP
+build_src_filter = +<plata1/main_plata1.cpp> +<plata1/*> - <*>
+
+[env:vtoraya_plata]
+; здесь надо свою плату выбрать
+board = esp32doit-devkit-v1 ; обычная esp32
+;board = esp32-c3-devkitc-02 ;это esp32-C3
+;board = lolin_s2_mini ;это esp32-S2
+;board =esp32cam ; ESP32 с камерой
+;board =  wt32-eth01 ;это esp32 c эзернетом
+lib_deps = 
+	GyverLibs/Settings
+	GyverLibs/WiFiConnector
+	Gyverlibs/GyverNTP
+build_src_filter = +<plata2/main_plata2.cpp> +<plata2/*> - <*>

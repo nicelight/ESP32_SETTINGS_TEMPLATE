@@ -3,7 +3,7 @@
 
 #include "led.h"
 #include "timer.h"
-#include "nastroyki.h"
+#include "globals.h"
 
 // #define PROJECT_NAME "Turniket-v0.1"
 // #define PROJECT_NAME "Турникеты v0.1"

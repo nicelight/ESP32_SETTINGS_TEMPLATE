@@ -1,9 +1,11 @@
 #include <Arduino.h>
-#include "sets.h"
+#include "globals.h"
 #include "led.h"
 #include "timer.h"
 #include "nastroyki.h"
 
+// обявление глобальных globals.h
+uint32_t g_lora_h = 0;
 
 void setup() {
     Serial.begin(115200);

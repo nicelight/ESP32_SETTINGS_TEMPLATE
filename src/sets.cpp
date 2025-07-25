@@ -34,7 +34,7 @@ sets::Logger logger(150);
 static void build(sets::Builder& b) {
     // WEB интерфейс ВЕБ морда формируется здесь
     {
-        sets::Group g(b, "Nicelight");
+        sets::Group g(b, "Water Pump #1 Lora_0х02");
         if (NTP.online()) {
             {
                 sets::Row g(b);
@@ -44,29 +44,15 @@ static void build(sets::Builder& b) {
             }
         }  // NTP.online()
 
-        // {
-        //     sets::Row g(b);
-        //     // sets::Row g(b, "Row");
-        //     b.Label(kk::uptimeDays, "Аптайм");
-        //     b.Time(kk::secondsUptime, " ");
-        // }
+        {
+            sets::Row g(b);
+            // sets::Row g(b, "Row");
+            b.Label(kk::uptimeDays, "Аптайм");
+            b.Time(kk::secondsUptime, " ");
+        }
 
         b.Time(kk::secondsNow, "Времечко");
     }  // Nicelight
-
-    // {  // удалить если работает wifi. это было в исходном примере ard_pio
-    //     sets::Group g(b, "Настройки WiFi");
-    //     b.Input(kk::wifi_ssid, "WiFI сеть");
-    //     b.Pass(kk::wifi_pass, "пароль", "");
-    //     if (b.Switch(kk::close_ap, "закрывать точку доступа")) {
-    //         WiFiConnector.closeAP(db[kk::close_ap]);
-    //     }
-    //     if (b.Button("Подключить")) {
-    //         db.update();      //  в примере WiFiconnector было, а в примере ard_pio не было
-    //         notice_f = true;  // пользователю попап уведомление
-    //         WiFiConnector.connect(db[kk::wifi_ssid], db[kk::wifi_pass]);
-    //     }
-    // }
 
     /* Настройки , внизу страницы*/
     {
@@ -95,11 +81,11 @@ static void build(sets::Builder& b) {
             b.Input(kk::ntp_gmt, "Часовой пояс");
             b.Label(" ", "\n\n ");
 
-            if (b.Button(kk::btn2, "стереть настройки(TODO!)", sets::Colors::Red)) {
-                Serial.println("could clear db");
-                // db.clear();
-                // db.update();
-            }
+            // if (b.Button(kk::btn2, "стереть настройки(TODO!)", sets::Colors::Red)) {
+            //     Serial.println("could clear db");
+            //     // db.clear();
+            //     // db.update();
+            // }
         }  // настройки - расширенные
     }  // Подстройки
 }  // build
@@ -143,25 +129,33 @@ void sett_begin() {
     db.init(kk::close_ap, true);
     db.init(kk::ntp_gmt, 5);
 
+    NTP.onError([]() {
+        Serial.println(NTP.readError());
+        Serial.print("NTP online: ");
+        Serial.println(NTP.online());
+    });
+
     // wifi
     WiFiConnector.onConnect([]() {
         Serial.print("Connected: ");
         Serial.println(WiFi.localIP());
         indikator.setPeriod(3000, 1, 200, 150);  // раз в 3000 сек, 1 раз
+
+        NTP.begin();
+        NTP.setHost("1.asia.pool.ntp.org");  // установить другой хост
+        // NTP.setHost("uz.pool.ntp.org");     // установить другой хост
+        // NTP.setHost("2.asia.pool.ntp.org");     // установить другой хост
+        NTP.setPeriod(600);  // обновлять раз в 600 сек
+        NTP.setGMT(db[kk::ntp_gmt]);
+        NTP.updateNow();  // синхронизировать
+        NTP.tick();
     });
     WiFiConnector.onError([]() {
         Serial.print("Error. Start AP: ");
         Serial.println(WiFi.softAPIP());
         indikator.setPeriod(600, 2, 100, 50);  // раз в  секунду два раза взмигнем - по 200 милисек, гореть будем 50 милисек
         // if (each5min.ready()) ESP.restart();  // через 5 минут ребутаемся
-        NTP.begin();
-        NTP.setHost("1.asia.pool.ntp.org");     // установить другой хост
-        // NTP.setHost("uz.pool.ntp.org");     // установить другой хост
-        // NTP.setHost("2.asia.pool.ntp.org");     // установить другой хост
-        NTP.setPeriod(600);  // обновлять раз в 600 сек        
-        NTP.setGMT(db[kk::ntp_gmt]);
-        NTP.updateNow();  // синхронизировать
-        NTP.tick();
+        // обработчик ошибок
     });
 
     WiFiConnector.setName(PROJECT_NAME);
